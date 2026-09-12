@@ -59,6 +59,30 @@ ESP32 + DHT22          FastAPI               Supabase              Next.js
 3. O **Supabase** armazena as leituras e gera alertas automaticamente quando os valores saem dos limites (via trigger no banco)
 4. O **frontend** (Next.js) consulta o banco a cada 5 segundos (polling) para exibir os dados atualizados, sem precisar recarregar a página manualmente
 
+## Caminho dos dados
+
+A leitura e a escrita seguem caminhos diferentes, de propósito:
+
+- **Leitura** — o dashboard consulta o Supabase direto, com a anon key e a sessão
+  do usuário. O RLS do banco decide o que cada sessão enxerga.
+- **Escrita** — passa obrigatoriamente pelo FastAPI. O ESP32 grava leituras com a
+  chave do dispositivo (`X-API-Key`); a alteração de limites exige o token da
+  sessão do usuário. O `authenticated` não tem permissão de UPDATE no banco, então
+  não há como contornar a API.
+
+## Deteccao de anomalias
+
+Além do alerta por limite fixo (trigger no banco), o sistema calcula um baseline
+por dispositivo — média móvel e desvio-padrão sobre a janela configurada — e
+sinaliza como anomalia a leitura que se afasta desse padrão mais que `z_limite`
+desvios-padrão. A análise roda a cada leitura recebida e também pode ser
+consultada em `GET /analise/{dispositivo_id}`.
+
+A diferença entre os dois métodos aparece nos dados: uma leitura de 29,9 °C fica
+dentro do limite fixo de 30 °C e não gera alerta nenhum, mas representa 3,3
+desvios-padrão acima do comportamento recente do ambiente e é sinalizada pelo
+limiar dinâmico.
+
 ## Estrutura das pastas
 
 ```
