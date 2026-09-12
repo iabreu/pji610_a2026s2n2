@@ -1,6 +1,6 @@
 # Wokwi — ESP32 + DHT22 (MicroPython)
 
-Código que roda no ESP32 simulado no [Wokwi](https://wokwi.com). Lê temperatura e umidade do DHT22 a cada 30 segundos e envia para o backend FastAPI via HTTP POST.
+Código que roda no ESP32 simulado no [Wokwi](https://wokwi.com). Lê temperatura e umidade do DHT22 a cada 10 segundos, descarta leituras inválidas e envia a média de 6 amostras para o backend FastAPI via HTTP POST.
 
 ## Arquivos
 

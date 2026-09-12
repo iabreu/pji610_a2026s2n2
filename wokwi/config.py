@@ -1,7 +1,7 @@
 WIFI_SSID = "Wokwi-GUEST"
 WIFI_PASSWORD = ""
 
-API_BASE_URL = "https://seu-backend.vercel.app"
+API_BASE_URL = "https://pji610-backend.vercel.app"
 ENDPOINT_LEITURAS = API_BASE_URL + "/leituras"
 
 API_KEY = "troque_esta_chave_pelo_valor_real_do_supabase"
