@@ -2,11 +2,7 @@
 
 Sistema de monitoramento de temperatura e umidade usando ESP32 + sensor DHT22. O projeto foi desenvolvido como trabalho de conclusão do Projeto Integrador em Computação VI da UNIVESP (Universidade Virtual do Estado de São Paulo).
 
-**Equipe:**
-
-- Ivan Alexandre de Abreu Filho — RA 2208014
-- Ronaldo Fernandes da Silva — RA 2005238
-- Denivaldo Ferreira de Souza — RA 2203880
+**Equipe:** Ivan Alexandre de Abreu Filho — RA 2208014
 
 **Disciplina:** PJI610-DRP04-A2026S2-T002 — Projeto Integrador em Computação VI
 **Polo:** Itupeva - SP
