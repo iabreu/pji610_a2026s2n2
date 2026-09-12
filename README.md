@@ -125,6 +125,18 @@ pji610_a2026s2n2/
 | **Recharts**      | Gráficos de temperatura e umidade                         |
 | **Vercel**        | Hospedagem do backend e do frontend                       |
 
+## Comandos
+
+Na raiz do projeto:
+
+| Comando | O que faz |
+| --- | --- |
+| `make install` | Instala as dependências do backend e do frontend |
+| `make check` | Verifica os tipos do frontend |
+| `make dev-backend` | Sobe a API em `http://localhost:8000` |
+| `make dev-frontend` | Sobe o dashboard em `http://localhost:3000` |
+| `make deploy` | Publica backend e frontend em produção |
+
 ## Como rodar o projeto
 
 ### Pré-requisitos
