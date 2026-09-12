@@ -13,7 +13,7 @@ app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description=(
-        "API do Projeto Integrador V — UNIVESP. "
+        "API do Projeto Integrador VI — UNIVESP. "
         "Recebe leituras de temperatura e umidade dos ESP32 e atende o dashboard."
     ),
 )

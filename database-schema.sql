@@ -4,7 +4,7 @@
 --   1. Abra o SQL Editor no painel do Supabase
 --   2. Cole este arquivo inteiro e execute
 --   3. (Opcional) Execute database-seed.sql para popular com dados de teste
---   4. Veja docs/README.md para o passo a passo completo
+--   4. Veja README.md na raiz para o passo a passo completo
 
 -- Limpar objetos existentes (idempotente para re-execução durante desenvolvimento)
 DROP VIEW  IF EXISTS vw_dispositivos_status CASCADE;

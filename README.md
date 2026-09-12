@@ -1,12 +1,20 @@
-# Projeto Integrador V — UNIVESP
+# Projeto Integrador VI — UNIVESP
 
-Sistema de monitoramento de temperatura e umidade usando ESP32 + sensor DHT22. O projeto foi desenvolvido como trabalho de conclusão do Projeto Integrador em Computação V da UNIVESP (Universidade Virtual do Estado de São Paulo).
+Sistema de monitoramento de temperatura e umidade usando ESP32 + sensor DHT22. O projeto foi desenvolvido como trabalho de conclusão do Projeto Integrador em Computação VI da UNIVESP (Universidade Virtual do Estado de São Paulo).
 
-**Equipe:** Ivan Alexandre de Abreu filho - RA 2208014
+**Equipe:**
+
+- Ivan Alexandre de Abreu Filho — RA 2208014
+- Ronaldo Fernandes da Silva — RA 2005238
+- Denivaldo Ferreira de Souza — RA 2203880
+
+**Disciplina:** PJI610-DRP04-A2026S2-T002 — Projeto Integrador em Computação VI
+**Polo:** Itupeva - SP
+**Orientadora:** Bruna Christina Battissacco Fontanetti
 
 ## Acesso para teste
 
-O dashboard está disponível em: **https://pji510-a2026s1.vercel.app/** _(substituir pela URL real do deploy)_
+O dashboard está disponível em: **https://pji610-a2026s2n2.vercel.app/** _(substituir pela URL real do deploy)_
 
 Para entrar e testar, use a conta de avaliação abaixo:
 
@@ -56,7 +64,7 @@ ESP32 + DHT22          FastAPI               Supabase              Next.js
 ## Estrutura das pastas
 
 ```
-projeto-integrador-v/
+pji610_a2026s2n2/
 │
 ├── database-schema.sql     # Cria tabelas, triggers, view e permissões
 ├── database-seed.sql       # Dados de teste (24h de leituras simuladas)

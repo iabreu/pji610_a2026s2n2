@@ -85,7 +85,7 @@ def enviar_leitura(temperatura, umidade):
     return False
 
 
-print("\n=== Projeto Integrador V - UNIVESP ===")
+print("\n=== Projeto Integrador VI - UNIVESP ===")
 print("Inicializando ESP32...")
 
 if conectar_wifi():

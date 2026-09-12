@@ -3,9 +3,9 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UNIVESP · Monitoramento PI V",
+  title: "UNIVESP · Monitoramento PI VI",
   description:
-    "Sistema de monitoramento de temperatura e umidade — Projeto Integrador V, UNIVESP",
+    "Sistema de monitoramento de temperatura e umidade — Projeto Integrador VI, UNIVESP",
 };
 
 export default function RootLayout({

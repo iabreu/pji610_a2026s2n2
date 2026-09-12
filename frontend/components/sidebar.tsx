@@ -19,7 +19,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <Cpu className="h-6 w-6 text-primary" />
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold">UNIVESP · PI V</span>
+          <span className="text-sm font-semibold">UNIVESP · PI VI</span>
           <span className="text-xs text-muted-foreground">Monitoramento</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t p-4 text-xs text-muted-foreground">
-        <p>Projeto Integrador V</p>
+        <p>Projeto Integrador VI</p>
         <p>UNIVESP · 2026</p>
       </div>
     </aside>

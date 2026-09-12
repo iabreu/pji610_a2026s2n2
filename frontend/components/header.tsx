@@ -23,7 +23,7 @@ export function Header({ emailUsuario }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:px-6">
       <div className="md:hidden">
-        <span className="text-sm font-semibold">UNIVESP · PI V</span>
+        <span className="text-sm font-semibold">UNIVESP · PI VI</span>
       </div>
 
       <div className="ml-auto flex items-center gap-2">
