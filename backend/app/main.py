@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routes import alertas, dispositivos, estatisticas, leituras
+from app.routes import alertas, analise, dispositivos, estatisticas, leituras
 from app.schemas import Health
 
 settings = get_settings()
@@ -51,3 +51,4 @@ app.include_router(leituras.router)
 app.include_router(dispositivos.router)
 app.include_router(alertas.router)
 app.include_router(estatisticas.router)
+app.include_router(analise.router)

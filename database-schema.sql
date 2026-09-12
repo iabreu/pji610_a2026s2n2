@@ -194,6 +194,93 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = pji610, pg_temp;
 
+CREATE OR REPLACE FUNCTION pji610.fn_detectar_anomalias(p_dispositivo_id UUID)
+RETURNS INTEGER AS $$
+DECLARE
+    v_dispositivo pji610.dispositivos%ROWTYPE;
+    v_baseline    pji610.baselines%ROWTYPE;
+    v_criados     INTEGER := 0;
+    v_linhas      INTEGER;
+BEGIN
+    SELECT * INTO v_dispositivo
+    FROM pji610.dispositivos
+    WHERE id = p_dispositivo_id AND ativo;
+
+    IF NOT FOUND THEN
+        RETURN 0;
+    END IF;
+
+    PERFORM pji610.fn_recalcular_baseline(p_dispositivo_id);
+
+    SELECT * INTO v_baseline
+    FROM pji610.baselines
+    WHERE dispositivo_id = p_dispositivo_id
+      AND janela_minutos = v_dispositivo.janela_baseline_minutos;
+
+    IF NOT FOUND OR v_baseline.amostras < 30 THEN
+        RETURN 0;
+    END IF;
+
+    IF v_baseline.desvio_temperatura > 0 THEN
+        INSERT INTO pji610.alertas (
+            dispositivo_id, leitura_id, tipo, metodo,
+            valor_medido, limite, escore_z, registrado_em
+        )
+        SELECT
+            l.dispositivo_id,
+            l.id,
+            'anomalia_temperatura',
+            'limiar_dinamico',
+            l.temperatura,
+            v_baseline.media_temperatura
+                + v_dispositivo.z_limite * v_baseline.desvio_temperatura,
+            (l.temperatura - v_baseline.media_temperatura)
+                / v_baseline.desvio_temperatura,
+            l.registrado_em
+        FROM pji610.leituras l
+        WHERE l.dispositivo_id = p_dispositivo_id
+          AND l.registrado_em >= NOW()
+              - (v_dispositivo.janela_baseline_minutos || ' minutes')::INTERVAL
+          AND ABS((l.temperatura - v_baseline.media_temperatura)
+                  / v_baseline.desvio_temperatura) > v_dispositivo.z_limite
+        ON CONFLICT (leitura_id, tipo) DO NOTHING;
+
+        GET DIAGNOSTICS v_linhas = ROW_COUNT;
+        v_criados := v_criados + v_linhas;
+    END IF;
+
+    IF v_baseline.desvio_umidade > 0 THEN
+        INSERT INTO pji610.alertas (
+            dispositivo_id, leitura_id, tipo, metodo,
+            valor_medido, limite, escore_z, registrado_em
+        )
+        SELECT
+            l.dispositivo_id,
+            l.id,
+            'anomalia_umidade',
+            'limiar_dinamico',
+            l.umidade,
+            v_baseline.media_umidade
+                + v_dispositivo.z_limite * v_baseline.desvio_umidade,
+            (l.umidade - v_baseline.media_umidade)
+                / v_baseline.desvio_umidade,
+            l.registrado_em
+        FROM pji610.leituras l
+        WHERE l.dispositivo_id = p_dispositivo_id
+          AND l.registrado_em >= NOW()
+              - (v_dispositivo.janela_baseline_minutos || ' minutes')::INTERVAL
+          AND ABS((l.umidade - v_baseline.media_umidade)
+                  / v_baseline.desvio_umidade) > v_dispositivo.z_limite
+        ON CONFLICT (leitura_id, tipo) DO NOTHING;
+
+        GET DIAGNOSTICS v_linhas = ROW_COUNT;
+        v_criados := v_criados + v_linhas;
+    END IF;
+
+    RETURN v_criados;
+END;
+$$ LANGUAGE plpgsql SET search_path = pji610, pg_temp;
+
 CREATE OR REPLACE VIEW pji610.vw_leituras_analise AS
 SELECT
     l.id,
@@ -248,6 +335,9 @@ LEFT JOIN LATERAL (
 ) l ON TRUE;
 
 GRANT USAGE ON SCHEMA pji610 TO anon, authenticated, service_role;
+
+GRANT EXECUTE ON FUNCTION pji610.fn_recalcular_baseline(UUID) TO service_role;
+GRANT EXECUTE ON FUNCTION pji610.fn_detectar_anomalias(UUID)  TO service_role;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA pji610 TO anon, authenticated;
 GRANT ALL    ON ALL TABLES IN SCHEMA pji610 TO service_role;

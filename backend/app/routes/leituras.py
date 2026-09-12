@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.analise import detectar_anomalias
 from app.auth import autenticar_dispositivo
 from app.rate_limit import rate_limit_por_ip
 from app.schemas import Leitura, LeituraCriar
@@ -41,6 +42,11 @@ async def registrar_leitura(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Falha ao gravar leitura",
         )
+
+    try:
+        detectar_anomalias(dispositivo["id"])
+    except Exception:
+        pass
 
     return resposta.data[0]
 

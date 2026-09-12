@@ -87,6 +87,29 @@ class Alerta(BaseModel):
 
 
 
+class Baseline(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    dispositivo_id: UUID
+    janela_minutos: int
+    media_temperatura: float
+    desvio_temperatura: float
+    media_umidade: float
+    desvio_umidade: float
+    amostras: int
+    calculado_em: datetime
+
+
+class AnaliseDispositivo(BaseModel):
+    dispositivo_id: UUID
+    z_limite: float
+    baseline: Baseline | None = None
+    temperatura_limite_inferior: float | None = None
+    temperatura_limite_superior: float | None = None
+    umidade_limite_inferior: float | None = None
+    umidade_limite_superior: float | None = None
+
+
 class Estatisticas(BaseModel):
     dispositivo_id: UUID
     inicio: datetime
