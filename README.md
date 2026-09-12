@@ -10,7 +10,9 @@ Sistema de monitoramento de temperatura e umidade usando ESP32 + sensor DHT22. O
 
 ## Acesso para teste
 
-O dashboard está disponível em: **https://pji610-a2026s2n2.vercel.app/** _(substituir pela URL real do deploy)_
+O dashboard está disponível em: **https://pji610-frontend.vercel.app/**
+
+A API fica em `https://pji610-backend.vercel.app` (documentação em `/docs`).
 
 Para entrar e testar, use a conta de avaliação abaixo:
 
@@ -52,7 +54,7 @@ ESP32 + DHT22          FastAPI               Supabase              Next.js
      │                    │                     │  saiu dos limites   │
 ```
 
-1. O **ESP32** lê o sensor a cada 30 segundos e envia os dados via HTTP para a API
+1. O **ESP32** lê o sensor a cada 10 segundos, descarta leituras inválidas e envia a média de 6 amostras via HTTP para a API
 2. O **backend** (FastAPI) recebe os dados, valida a API key do dispositivo e grava no banco
 3. O **Supabase** armazena as leituras e gera alertas automaticamente quando os valores saem dos limites (via trigger no banco)
 4. O **frontend** (Next.js) consulta o banco a cada 5 segundos (polling) para exibir os dados atualizados, sem precisar recarregar a página manualmente
@@ -83,7 +85,7 @@ pji610_a2026s2n2/
 │   └── .env.example        # Modelo de variáveis de ambiente
 │
 ├── wokwi/               # Código do ESP32 (MicroPython)
-│   ├── main.py             # Loop principal (lê sensor, envia dados)
+│   ├── main.py             # Loop principal (lê sensor, agrega e envia)
 │   ├── boot.py             # Inicialização do ESP32
 │   ├── config.py           # Configurações (WiFi, URL da API, API key)
 │   └── diagram.json        # Circuito do Wokwi (ESP32 + DHT22)
@@ -136,15 +138,16 @@ pji610_a2026s2n2/
 ### Passo 1 — Banco de dados (Supabase)
 
 1. Crie um projeto no [Supabase](https://supabase.com)
-2. No **SQL Editor**, cole e execute o conteúdo de `database-schema.sql`
-3. (Opcional) Execute `database-seed.sql` para ter dados de teste
-4. Gere API keys reais para os dispositivos:
+2. No **SQL Editor**, cole e execute o conteúdo de `database-schema.sql`. As tabelas
+   são criadas no schema `pji610`, não em `public`
+3. Em **Project Settings > API > Exposed schemas**, adicione `pji610`
+4. (Opcional) Execute `database-seed.sql` para ter dados de teste
+5. Veja as API keys geradas para os dispositivos:
    ```sql
-   UPDATE dispositivos SET api_key = encode(gen_random_bytes(32), 'hex') WHERE nome = 'ESP32-001' RETURNING api_key;
-   UPDATE dispositivos SET api_key = encode(gen_random_bytes(32), 'hex') WHERE nome = 'ESP32-002' RETURNING api_key;
+   SELECT nome, api_key FROM pji610.dispositivos;
    ```
-5. Em **Authentication > Users**, crie as contas dos integrantes do grupo (ou use o usuário de teste descrito em "Acesso ao dashboard")
-6. Anote a **URL do projeto**, a **anon key** e a **service_role key** (em Project Settings > API)
+6. Em **Authentication > Users**, crie as contas dos integrantes do grupo (ou use o usuário de teste descrito em "Acesso ao dashboard")
+7. Anote a **URL do projeto**, a **anon key** e a **service_role key** (em Project Settings > API)
 
 ### Acesso ao dashboard (usuário de teste)
 
@@ -155,29 +158,8 @@ Para facilitar a avaliação do projeto, há um usuário de teste pré-definido:
 | E-mail | `teste@aluno.univesp.br` |
 | Senha  | `univesp`                |
 
-Para criá-lo, execute o SQL abaixo no **SQL Editor** do Supabase (uma vez só):
-
-```sql
-INSERT INTO auth.users (
-    instance_id, id, aud, role, email,
-    encrypted_password, email_confirmed_at,
-    raw_app_meta_data, raw_user_meta_data,
-    created_at, updated_at,
-    confirmation_token, email_change, email_change_token_new, recovery_token
-) VALUES (
-    '00000000-0000-0000-0000-000000000000',
-    gen_random_uuid(),
-    'authenticated',
-    'authenticated',
-    'teste@aluno.univesp.br',
-    crypt('univesp', gen_salt('bf')),
-    NOW(),
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NOW(), NOW(),
-    '', '', '', ''
-);
-```
+Para criá-lo, vá em **Authentication > Users > Add user** no painel do Supabase,
+informe o e-mail e a senha acima e marque *Auto Confirm User*.
 
 ### Passo 2 — Backend (FastAPI)
 
