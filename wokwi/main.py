@@ -1,9 +1,9 @@
 import time
+import math
 import network
 import urequests
 import ujson
 import dht
-import random
 
 from machine import Pin
 
@@ -35,19 +35,37 @@ def conectar_wifi():
 def ler_sensor(sensor):
     try:
         sensor.measure()
-        temperatura = round(random.uniform(18.0, 35.0), 1)
-        umidade = round(random.uniform(40.0, 85.0), 1)
-        return temperatura, umidade
+        return sensor.temperature(), sensor.humidity()
     except OSError as e:
         print("[sensor] erro: {}".format(e))
         return None, None
 
 
-def enviar_leitura(temperatura, umidade):
-    payload = ujson.dumps({
-        "temperatura": temperatura,
-        "umidade": umidade
-    })
+def leitura_valida(temperatura, umidade):
+    """Descarta leitura fora da faixa operacional do DHT22."""
+    if temperatura is None or umidade is None:
+        return False
+    if not config.TEMP_VALIDA_MIN <= temperatura <= config.TEMP_VALIDA_MAX:
+        return False
+    if not config.UMID_VALIDA_MIN <= umidade <= config.UMID_VALIDA_MAX:
+        return False
+    return True
+
+
+def media(valores):
+    return sum(valores) / len(valores)
+
+
+def desvio_padrao(valores, m):
+    """Desvio-padrao amostral. Zero com menos de duas amostras."""
+    if len(valores) < 2:
+        return 0.0
+    variancia = sum((v - m) ** 2 for v in valores) / (len(valores) - 1)
+    return math.sqrt(variancia)
+
+
+def enviar_leitura(payload):
+    corpo = ujson.dumps(payload)
 
     headers = {
         "Content-Type": "application/json",
@@ -63,7 +81,7 @@ def enviar_leitura(temperatura, umidade):
 
             resp = urequests.post(
                 config.ENDPOINT_LEITURAS,
-                data=payload,
+                data=corpo,
                 headers=headers
             )
 
@@ -93,31 +111,76 @@ if conectar_wifi():
     sensor = dht.DHT22(Pin(config.PINO_DHT22))
 
     print("[main] sensor DHT22 no pino {}".format(config.PINO_DHT22))
-    print("[main] intervalo: {}s\n".format(
-        config.INTERVALO_LEITURA_SEGUNDOS
+    print("[main] amostra a cada {}s, envio a cada {} amostras ({}s)\n".format(
+        config.INTERVALO_AMOSTRA_SEGUNDOS,
+        config.AMOSTRAS_POR_ENVIO,
+        config.INTERVALO_AMOSTRA_SEGUNDOS * config.AMOSTRAS_POR_ENVIO
     ))
 
     time.sleep(2)
+
+    temperaturas = []
+    umidades = []
+    descartadas = 0
 
     while True:
 
         temperatura, umidade = ler_sensor(sensor)
 
-        if temperatura is not None:
+        if leitura_valida(temperatura, umidade):
+            temperaturas.append(temperatura)
+            umidades.append(umidade)
+
+            print("[amostra] {}/{} | temp: {:.1f} C | umid: {:.1f} %".format(
+                len(temperaturas),
+                config.AMOSTRAS_POR_ENVIO,
+                temperatura,
+                umidade
+            ))
+        else:
+            descartadas += 1
+            print("[amostra] invalida, descartada ({} no ciclo)".format(
+                descartadas
+            ))
+
+        if len(temperaturas) >= config.AMOSTRAS_POR_ENVIO:
+
+            media_temp = media(temperaturas)
+            media_umid = media(umidades)
+
+            payload = {
+                "temperatura": round(media_temp, 2),
+                "umidade": round(media_umid, 2),
+                "amostras": len(temperaturas),
+                "descartadas": descartadas,
+                "desvio_temperatura": round(
+                    desvio_padrao(temperaturas, media_temp), 3
+                ),
+                "desvio_umidade": round(
+                    desvio_padrao(umidades, media_umid), 3
+                ),
+            }
 
             print(
-                "[leitura] temp: {:.1f} C | umid: {:.1f} %".format(
-                    temperatura,
-                    umidade
+                "[agregado] temp: {:.2f} C (s={:.3f}) | "
+                "umid: {:.2f} % (s={:.3f}) | "
+                "{} amostras, {} descartadas".format(
+                    payload["temperatura"],
+                    payload["desvio_temperatura"],
+                    payload["umidade"],
+                    payload["desvio_umidade"],
+                    payload["amostras"],
+                    payload["descartadas"]
                 )
             )
 
-            enviar_leitura(temperatura, umidade)
+            enviar_leitura(payload)
 
-        else:
-            print("[leitura] falhou, pulando")
+            temperaturas = []
+            umidades = []
+            descartadas = 0
 
-        time.sleep(config.INTERVALO_LEITURA_SEGUNDOS)
+        time.sleep(config.INTERVALO_AMOSTRA_SEGUNDOS)
 
 else:
     print("[main] sem wifi, parando.")
