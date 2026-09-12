@@ -1,6 +1,13 @@
 import type { Estatisticas, Dispositivo } from "./types";
+import { createClient } from "./supabase/client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+async function cabecalhoAutorizacao(): Promise<Record<string, string>> {
+  const { data } = await createClient().auth.getSession();
+  const token = data.session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -46,7 +53,7 @@ export const api = {
       `/estatisticas/${dispositivoId}?horas=${horas}`,
     ),
 
-  atualizarLimites: (
+  atualizarLimites: async (
     dispositivoId: string,
     payload: Partial<{
       temperatura_min: number;
@@ -58,6 +65,7 @@ export const api = {
   ) =>
     fetchJSON<Dispositivo>(`/dispositivos/${dispositivoId}/limites`, {
       method: "PATCH",
+      headers: await cabecalhoAutorizacao(),
       body: JSON.stringify(payload),
     }),
 };

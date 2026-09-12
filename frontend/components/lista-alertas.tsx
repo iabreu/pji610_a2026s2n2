@@ -69,7 +69,12 @@ export function ListaAlertas({ alertas, dispositivos }: ListaAlertasProps) {
         const Icone = iconePorTipo[alerta.tipo];
         const dispositivo = dispositivoMap[alerta.dispositivo_id];
         const unidade = unidadePorTipo[alerta.tipo];
-        const direcao = alerta.tipo.endsWith("alta") ? "acima do" : "abaixo do";
+        const ehAnomalia = alerta.tipo.startsWith("anomalia");
+        const direcao = ehAnomalia
+          ? "fora do padrão recente do ambiente"
+          : alerta.tipo.endsWith("alta")
+            ? "acima do"
+            : "abaixo do";
 
         return (
           <li
@@ -97,12 +102,30 @@ export function ListaAlertas({ alertas, dispositivos }: ListaAlertasProps) {
                   {formatarNumero(alerta.valor_medido)}
                   {unidade}
                 </span>
-                {", "}
-                {direcao} limite de{" "}
-                <span className="font-semibold tabular-nums">
-                  {formatarNumero(alerta.limite)}
-                  {unidade}
-                </span>
+                {ehAnomalia ? (
+                  <>
+                    {", "}
+                    {direcao}
+                    {alerta.escore_z !== null && (
+                      <>
+                        {" ("}
+                        <span className="font-semibold tabular-nums">
+                          {formatarNumero(alerta.escore_z)}
+                        </span>
+                        {" desvios-padrao)"}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {", "}
+                    {direcao} limite de{" "}
+                    <span className="font-semibold tabular-nums">
+                      {formatarNumero(alerta.limite)}
+                      {unidade}
+                    </span>
+                  </>
+                )}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {formatarDataHora(alerta.registrado_em)} ·{" "}

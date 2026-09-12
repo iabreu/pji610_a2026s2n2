@@ -9,10 +9,6 @@ from pydantic import BaseModel, ConfigDict, Field
 class LeituraCriar(BaseModel):
     temperatura: float = Field(..., ge=-50, le=100, description="Temperatura em °C")
     umidade: float = Field(..., ge=0, le=100, description="Umidade relativa em %")
-    registrado_em: datetime | None = Field(
-        default=None,
-        description="Timestamp da leitura. Se omitido, usa NOW() do banco.",
-    )
 
     amostras: int = Field(
         default=1, ge=1, description="Amostras válidas agregadas nesta leitura"
@@ -81,9 +77,12 @@ class Alerta(BaseModel):
     tipo: Literal[
         "temperatura_alta", "temperatura_baixa",
         "umidade_alta", "umidade_baixa",
+        "anomalia_temperatura", "anomalia_umidade",
     ]
+    metodo: Literal["limiar_fixo", "limiar_dinamico"] = "limiar_fixo"
     valor_medido: float
     limite: float
+    escore_z: float | None = None
     registrado_em: datetime
 
 

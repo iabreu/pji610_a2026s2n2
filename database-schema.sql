@@ -257,8 +257,6 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA pji610
 ALTER DEFAULT PRIVILEGES IN SCHEMA pji610
     GRANT ALL ON TABLES TO service_role;
 
-GRANT UPDATE ON pji610.dispositivos TO authenticated;
-
 ALTER TABLE pji610.dispositivos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pji610.leituras     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pji610.alertas      ENABLE ROW LEVEL SECURITY;
@@ -268,12 +266,6 @@ CREATE POLICY "dispositivos_select_authenticated"
     ON pji610.dispositivos FOR SELECT
     TO authenticated
     USING (TRUE);
-
-CREATE POLICY "dispositivos_update_authenticated"
-    ON pji610.dispositivos FOR UPDATE
-    TO authenticated
-    USING (TRUE)
-    WITH CHECK (TRUE);
 
 CREATE POLICY "leituras_select_authenticated"
     ON pji610.leituras FOR SELECT

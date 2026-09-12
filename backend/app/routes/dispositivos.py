@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.auth import autenticar_usuario
 from app.schemas import DispositivoAtualizarLimites, DispositivoStatus
 from app.supabase_client import get_supabase
 
@@ -55,6 +56,7 @@ async def detalhar_dispositivo(dispositivo_id: UUID) -> dict:
 async def atualizar_limites(
     dispositivo_id: UUID,
     payload: DispositivoAtualizarLimites,
+    _usuario: dict = Depends(autenticar_usuario),
 ) -> dict:
     dados = payload.model_dump(exclude_none=True)
     if not dados:

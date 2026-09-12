@@ -33,8 +33,6 @@ async def registrar_leitura(
         "desvio_temperatura": payload.desvio_temperatura,
         "desvio_umidade": payload.desvio_umidade,
     }
-    if payload.registrado_em is not None:
-        dados["registrado_em"] = payload.registrado_em.isoformat()
 
     resposta = supabase.table("leituras").insert(dados).execute()
 
