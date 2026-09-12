@@ -14,6 +14,19 @@ class LeituraCriar(BaseModel):
         description="Timestamp da leitura. Se omitido, usa NOW() do banco.",
     )
 
+    amostras: int = Field(
+        default=1, ge=1, description="Amostras válidas agregadas nesta leitura"
+    )
+    descartadas: int = Field(
+        default=0, ge=0, description="Amostras descartadas na borda no mesmo ciclo"
+    )
+    desvio_temperatura: float | None = Field(
+        default=None, ge=0, description="Desvio-padrão da temperatura no lote"
+    )
+    desvio_umidade: float | None = Field(
+        default=None, ge=0, description="Desvio-padrão da umidade no lote"
+    )
+
 
 class Leitura(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -22,6 +35,10 @@ class Leitura(BaseModel):
     dispositivo_id: UUID
     temperatura: float
     umidade: float
+    amostras: int = 1
+    descartadas: int = 0
+    desvio_temperatura: float | None = None
+    desvio_umidade: float | None = None
     registrado_em: datetime
 
 

@@ -6,6 +6,7 @@ import {
   ThermometerSnowflake,
   Droplets,
   CloudOff,
+  Activity,
 } from "lucide-react";
 import {
   formatarDataHora,
@@ -19,6 +20,8 @@ const iconePorTipo: Record<TipoAlerta, typeof ThermometerSun> = {
   temperatura_baixa: ThermometerSnowflake,
   umidade_alta: Droplets,
   umidade_baixa: CloudOff,
+  anomalia_temperatura: Activity,
+  anomalia_umidade: Activity,
 };
 
 const corPorTipo: Record<TipoAlerta, string> = {
@@ -26,6 +29,10 @@ const corPorTipo: Record<TipoAlerta, string> = {
   temperatura_baixa: "text-sky-600 bg-sky-100 dark:bg-sky-950 dark:text-sky-300",
   umidade_alta: "text-blue-600 bg-blue-100 dark:bg-blue-950 dark:text-blue-300",
   umidade_baixa: "text-amber-600 bg-amber-100 dark:bg-amber-950 dark:text-amber-300",
+  anomalia_temperatura:
+    "text-violet-600 bg-violet-100 dark:bg-violet-950 dark:text-violet-300",
+  anomalia_umidade:
+    "text-violet-600 bg-violet-100 dark:bg-violet-950 dark:text-violet-300",
 };
 
 const unidadePorTipo: Record<TipoAlerta, string> = {
@@ -33,6 +40,8 @@ const unidadePorTipo: Record<TipoAlerta, string> = {
   temperatura_baixa: "°C",
   umidade_alta: "%",
   umidade_baixa: "%",
+  anomalia_temperatura: "°C",
+  anomalia_umidade: "%",
 };
 
 interface ListaAlertasProps {

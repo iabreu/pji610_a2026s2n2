@@ -42,7 +42,6 @@ def ler_sensor(sensor):
 
 
 def leitura_valida(temperatura, umidade):
-    """Descarta leitura fora da faixa operacional do DHT22."""
     if temperatura is None or umidade is None:
         return False
     if not config.TEMP_VALIDA_MIN <= temperatura <= config.TEMP_VALIDA_MAX:
@@ -57,7 +56,6 @@ def media(valores):
 
 
 def desvio_padrao(valores, m):
-    """Desvio-padrao amostral. Zero com menos de duas amostras."""
     if len(valores) < 2:
         return 0.0
     variancia = sum((v - m) ** 2 for v in valores) / (len(valores) - 1)

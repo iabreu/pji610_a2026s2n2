@@ -19,6 +19,11 @@ class Settings(BaseSettings):
         description="Service role key do Supabase (NUNCA expor no frontend)",
     )
 
+    supabase_schema: str = Field(
+        default="pji610",
+        description="Schema do PostgreSQL onde vivem as tabelas do projeto",
+    )
+
     # CORS
     cors_origins: str = Field(
         default="http://localhost:3000",

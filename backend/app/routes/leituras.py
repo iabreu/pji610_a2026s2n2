@@ -28,6 +28,10 @@ async def registrar_leitura(
         "dispositivo_id": dispositivo["id"],
         "temperatura": payload.temperatura,
         "umidade": payload.umidade,
+        "amostras": payload.amostras,
+        "descartadas": payload.descartadas,
+        "desvio_temperatura": payload.desvio_temperatura,
+        "desvio_umidade": payload.desvio_umidade,
     }
     if payload.registrado_em is not None:
         dados["registrado_em"] = payload.registrado_em.isoformat()

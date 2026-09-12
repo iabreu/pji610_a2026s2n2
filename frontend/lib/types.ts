@@ -6,7 +6,11 @@ export type TipoAlerta =
   | "temperatura_alta"
   | "temperatura_baixa"
   | "umidade_alta"
-  | "umidade_baixa";
+  | "umidade_baixa"
+  | "anomalia_temperatura"
+  | "anomalia_umidade";
+
+export type MetodoAlerta = "limiar_fixo" | "limiar_dinamico";
 
 export interface Dispositivo {
   id: string;
@@ -16,6 +20,8 @@ export interface Dispositivo {
   temperatura_max: number;
   umidade_min: number;
   umidade_max: number;
+  z_limite: number;
+  janela_baseline_minutos: number;
   intervalo_offline_segundos: number;
   ativo: boolean;
   criado_em: string;
@@ -32,6 +38,10 @@ export interface Leitura {
   dispositivo_id: string;
   temperatura: number;
   umidade: number;
+  amostras: number;
+  descartadas: number;
+  desvio_temperatura: number | null;
+  desvio_umidade: number | null;
   registrado_em: string;
 }
 
@@ -40,9 +50,22 @@ export interface Alerta {
   dispositivo_id: string;
   leitura_id: string;
   tipo: TipoAlerta;
+  metodo: MetodoAlerta;
   valor_medido: number;
   limite: number;
+  escore_z: number | null;
   registrado_em: string;
+}
+
+export interface Baseline {
+  dispositivo_id: string;
+  janela_minutos: number;
+  media_temperatura: number;
+  desvio_temperatura: number;
+  media_umidade: number;
+  desvio_umidade: number;
+  amostras: number;
+  calculado_em: string;
 }
 
 export interface Estatisticas {
@@ -82,4 +105,11 @@ export const TIPO_ALERTA_LABEL: Record<TipoAlerta, string> = {
   temperatura_baixa: "Temperatura baixa",
   umidade_alta: "Umidade alta",
   umidade_baixa: "Umidade baixa",
+  anomalia_temperatura: "Anomalia de temperatura",
+  anomalia_umidade: "Anomalia de umidade",
+};
+
+export const METODO_ALERTA_LABEL: Record<MetodoAlerta, string> = {
+  limiar_fixo: "Limiar fixo",
+  limiar_dinamico: "Limiar dinâmico",
 };

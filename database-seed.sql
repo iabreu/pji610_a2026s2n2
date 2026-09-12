@@ -6,7 +6,7 @@
 -- Pré-requisito: execute database-schema.sql primeiro.
 
 -- Limpar leituras existentes (CASCADE remove alertas associados também)
-TRUNCATE leituras CASCADE;
+TRUNCATE pji610.leituras CASCADE;
 
 -- Gerar 24h de leituras a cada 5 minutos para cada dispositivo ativo
 DO $$
@@ -17,7 +17,7 @@ DECLARE
     v_umidade      NUMERIC;
     v_hora_do_dia  INTEGER;
 BEGIN
-    FOR v_dispositivo IN SELECT id, nome FROM dispositivos WHERE ativo LOOP
+    FOR v_dispositivo IN SELECT id, nome FROM pji610.dispositivos WHERE ativo LOOP
         v_timestamp := NOW() - INTERVAL '24 hours';
 
         WHILE v_timestamp <= NOW() LOOP
@@ -41,14 +41,32 @@ BEGIN
                 v_umidade := v_umidade - 35;
             END IF;
 
-            INSERT INTO leituras (dispositivo_id, temperatura, umidade, registrado_em)
+            INSERT INTO pji610.leituras (
+                dispositivo_id, temperatura, umidade,
+                amostras, descartadas, desvio_temperatura, desvio_umidade,
+                registrado_em
+            )
             VALUES (v_dispositivo.id,
                     ROUND(v_temperatura::NUMERIC, 2),
                     ROUND(GREATEST(LEAST(v_umidade, 100), 0)::NUMERIC, 2),
+                    6,
+                    CASE WHEN RANDOM() < 0.05 THEN 1 ELSE 0 END,
+                    ROUND((RANDOM() * 0.4)::NUMERIC, 3),
+                    ROUND((RANDOM() * 1.2)::NUMERIC, 3),
                     v_timestamp);
 
             v_timestamp := v_timestamp + INTERVAL '5 minutes';
         END LOOP;
+    END LOOP;
+END $$;
+
+-- Calcular o baseline inicial de cada dispositivo sobre os dados gerados
+DO $$
+DECLARE
+    v_id UUID;
+BEGIN
+    FOR v_id IN SELECT id FROM pji610.dispositivos WHERE ativo LOOP
+        PERFORM pji610.fn_recalcular_baseline(v_id);
     END LOOP;
 END $$;
 
@@ -63,17 +81,18 @@ SELECT
     ROUND(MIN(l.temperatura)::NUMERIC, 2)    AS temperatura_min,
     ROUND(MAX(l.temperatura)::NUMERIC, 2)    AS temperatura_max,
     ROUND(AVG(l.umidade)::NUMERIC, 2)        AS umidade_media
-FROM dispositivos d
-LEFT JOIN leituras l ON l.dispositivo_id = d.id
+FROM pji610.dispositivos d
+LEFT JOIN pji610.leituras l ON l.dispositivo_id = d.id
 GROUP BY d.id, d.nome, d.localizacao
 ORDER BY d.nome;
 
 -- Alertas gerados pelo trigger
 SELECT
     d.nome,
+    a.metodo,
     a.tipo,
     COUNT(*) AS quantidade
-FROM dispositivos d
-JOIN alertas a ON a.dispositivo_id = d.id
-GROUP BY d.id, d.nome, a.tipo
-ORDER BY d.nome, a.tipo;
+FROM pji610.dispositivos d
+JOIN pji610.alertas a ON a.dispositivo_id = d.id
+GROUP BY d.id, d.nome, a.metodo, a.tipo
+ORDER BY d.nome, a.metodo, a.tipo;

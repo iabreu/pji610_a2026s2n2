@@ -13,3 +13,5 @@ htmlcov/
 .vercel/
 .mypy_cache/
 .ruff_cache/
+.vercel
+.env*
