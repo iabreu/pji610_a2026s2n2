@@ -136,6 +136,11 @@ Na raiz do projeto:
 | `make dev-backend` | Sobe a API em `http://localhost:8000` |
 | `make dev-frontend` | Sobe o dashboard em `http://localhost:3000` |
 | `make deploy` | Publica backend e frontend em produção |
+| `make ship` | Faz push e depois publica |
+| `make hooks` | Ativa o hook que publica a cada `git push` na `main` |
+
+O deploy não é disparado pelo GitHub: os projetos no Vercel não estão ligados ao
+repositório. Publicar é sempre `make deploy`, direto ou pelo hook.
 
 ## Como rodar o projeto
 

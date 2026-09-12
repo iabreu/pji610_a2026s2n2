@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+raiz="$(git rev-parse --show-toplevel)"
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+    if [ "$remote_ref" = "refs/heads/main" ]; then
+        echo "[pre-push] verificando tipos"
+        make -C "$raiz" check
+        echo "[pre-push] publicando em producao"
+        make -C "$raiz" deploy
+    fi
+done
