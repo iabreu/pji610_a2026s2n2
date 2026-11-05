@@ -342,6 +342,12 @@ GRANT EXECUTE ON FUNCTION pji610.fn_detectar_anomalias(UUID)  TO service_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA pji610 TO anon, authenticated;
 GRANT ALL    ON ALL TABLES IN SCHEMA pji610 TO service_role;
 
+REVOKE SELECT ON pji610.dispositivos FROM anon, authenticated;
+GRANT SELECT (id, nome, localizacao, temperatura_min, temperatura_max,
+              umidade_min, umidade_max, z_limite, janela_baseline_minutos,
+              intervalo_offline_segundos, ativo, criado_em, atualizado_em)
+    ON pji610.dispositivos TO anon, authenticated;
+
 ALTER DEFAULT PRIVILEGES IN SCHEMA pji610
     GRANT SELECT ON TABLES TO anon, authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA pji610

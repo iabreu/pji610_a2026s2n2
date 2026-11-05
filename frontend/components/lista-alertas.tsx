@@ -13,7 +13,7 @@ import {
   formatarNumero,
   formatarTempoRelativo,
 } from "@/lib/utils";
-import { TIPO_ALERTA_LABEL, type Alerta, type Dispositivo, type TipoAlerta } from "@/lib/types";
+import { METODO_ALERTA_LABEL, TIPO_ALERTA_LABEL, type Alerta, type Dispositivo, type TipoAlerta } from "@/lib/types";
 
 const iconePorTipo: Record<TipoAlerta, typeof ThermometerSun> = {
   temperatura_alta: ThermometerSun,
@@ -95,6 +95,9 @@ export function ListaAlertas({ alertas, dispositivos }: ListaAlertasProps) {
                 <p className="text-sm text-muted-foreground">
                   em {dispositivo?.nome ?? alerta.dispositivo_id}
                 </p>
+                <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                  {METODO_ALERTA_LABEL[alerta.metodo]}
+                </span>
               </div>
               <p className="mt-1 text-sm">
                 Valor medido:{" "}
@@ -112,7 +115,7 @@ export function ListaAlertas({ alertas, dispositivos }: ListaAlertasProps) {
                         <span className="font-semibold tabular-nums">
                           {formatarNumero(alerta.escore_z)}
                         </span>
-                        {" desvios-padrao)"}
+                        {" desvios-padrão)"}
                       </>
                     )}
                   </>
