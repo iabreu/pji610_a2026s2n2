@@ -2,6 +2,8 @@
 
 Código que roda no ESP32 simulado no [Wokwi](https://wokwi.com). Lê temperatura e umidade do DHT22 a cada 10 segundos, descarta leituras inválidas e envia a média de 6 amostras para o backend FastAPI via HTTP POST.
 
+Projeto no Wokwi: https://wokwi.com/projects/479889770736548865 (a chave do dispositivo vem como placeholder; cole a chave real em `config.py` antes de rodar e não salve).
+
 ## Arquivos
 
 | Arquivo | Função |

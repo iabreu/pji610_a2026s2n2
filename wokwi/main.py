@@ -80,7 +80,8 @@ def enviar_leitura(payload):
             resp = urequests.post(
                 config.ENDPOINT_LEITURAS,
                 data=corpo,
-                headers=headers
+                headers=headers,
+                timeout=config.TIMEOUT_HTTP_SEGUNDOS
             )
 
             status = resp.status_code
@@ -171,6 +172,9 @@ if conectar_wifi():
                     payload["descartadas"]
                 )
             )
+
+            if not network.WLAN(network.STA_IF).isconnected():
+                conectar_wifi()
 
             enviar_leitura(payload)
 
