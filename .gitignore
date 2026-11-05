@@ -43,4 +43,4 @@ htmlcov/
 # MicroPython
 *.mpy
 
-/db
+db
